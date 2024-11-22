@@ -34,7 +34,7 @@ class ProductAdmin(admin.ModelAdmin):
 
     fieldsets = (
       ('Order Information', {
-        'fields': ('oder_number', 'status', 'total_amount')
+        'fields': ('status', 'total_amount', 'notes')
       }),
       ('Customer Details', {
         'fields': ('customer_name', 'customer_email')
@@ -43,11 +43,11 @@ class ProductAdmin(admin.ModelAdmin):
 
     actions = ['mark_as_completed', 'mark_as_processing']
 
-    def mark_as_completed(self, request, queryset):
+    def mark_as_completed(self, queryset):
       queryset.update(status='completed')
     mark_as_completed.short_description = "Mark selected orders as completed"
 
-    def mark_as_processing(self, requst, queryset):
+    def mark_as_processing(self, queryset):
       queryset.update(status='processing')
     mark_as_processing.short_description = "Mark selected orders as processing"
 
