@@ -7,11 +7,11 @@
       <ul v-else class="divide-y divide-gray-200">
         <li v-for="product in products" :key="product.id" class="py-4">
           <div class="flex justify-between">
-            <div>
-              <p class="font-medium">{{ product.name }}</p>
+            <div class="">
+              <p class="font-semibold">{{ product.name }}</p>
               <p class="text-sm text-gray-500">Stock: {{ product.stock }}</p>
             </div>
-            <p class="text-sm font-medium text-gray-900">${{ product.price }}</p>
+            <p class="text-sm font-medium text-gray-900">RM{{ product.price }}</p>
           </div>
         </li>
       </ul>

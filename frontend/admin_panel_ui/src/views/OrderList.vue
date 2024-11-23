@@ -16,14 +16,12 @@
       <input 
         v-model="searchQuery" 
         type="text" 
-        placeholder="Search orders..." 
+        placeholder="Search by order number or customer..." 
         class="border p-2 rounded"
-        @input="filterOrders"
       />
       <select 
         v-model="statusFilter" 
         class="border p-2 rounded"
-        @change="filterOrders"
       >
         <option value="all">All Status</option>
         <option value="pending">Pending</option>
@@ -34,17 +32,15 @@
       <select 
         v-model="sortBy" 
         class="border p-2 rounded"
-        @change="filterOrders"
       >
-        <option value="date">Sort by Date</option>
+        <option value="created_at">Sort by Date</option>
         <option value="order_number">Sort by Order Number</option>
-        <option value="status">Sort by Status</option>
+        <option value="total_amount">Sort by Amount</option>
       </select>
       <input 
         type="date" 
         v-model="dateFilter"
         class="border p-2 rounded"
-        @change="filterOrders"
       />
     </div>
 
@@ -56,8 +52,8 @@
             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Order #</th>
             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Customer</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total</th>
             <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
           </tr>
         </thead>
@@ -65,7 +61,11 @@
           <tr v-for="order in filteredOrders" :key="order.id">
             <td class="px-6 py-4 whitespace-nowrap font-medium">{{ order.order_number }}</td>
             <td class="px-6 py-4 whitespace-nowrap">{{ formatDate(order.created_at) }}</td>
-            <td class="px-6 py-4 whitespace-nowrap">{{ order.customer_details }}</td>
+            <td class="px-6 py-4">
+              <div class="text-sm font-medium text-gray-900">{{ order.customer_name }}</div>
+              <div class="text-sm text-gray-500">{{ order.customer_email }}</div>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">${{ formatAmount(order.total_amount) }}</td>
             <td class="px-6 py-4 whitespace-nowrap">
               <span 
                 :class="{
@@ -79,19 +79,18 @@
                 {{ order.status }}
               </span>
             </td>
-            <td class="px-6 py-4 whitespace-nowrap">${{ order.total }}</td>
             <td class="px-6 py-4 whitespace-nowrap text-right space-x-2">
+              <button 
+                @click="editOrder(order)"
+                class="text-indigo-600 hover:text-indigo-900"
+              >
+                Edit
+              </button>
               <button 
                 @click="updateStatus(order)"
                 class="text-blue-600 hover:text-blue-900"
               >
                 Update Status
-              </button>
-              <button 
-                @click="viewDetails(order)"
-                class="text-green-600 hover:text-green-900"
-              >
-                View
               </button>
               <button 
                 @click="deleteOrder(order.id)"
@@ -107,64 +106,40 @@
 
     <!-- Create/Edit Order Modal -->
     <div v-if="showAddModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center">
-      <div class="bg-white p-6 rounded-lg shadow-xl w-full max-w-2xl">
+      <div class="bg-white p-6 rounded-lg shadow-xl w-full max-w-md">
         <h3 class="text-lg font-medium mb-4">{{ editingOrder ? 'Edit Order' : 'Create Order' }}</h3>
         <form @submit.prevent="saveOrder">
           <div class="space-y-4">
-            <div class="grid grid-cols-2 gap-4">
-              <div>
-                <label class="block text-sm font-medium text-gray-700">Customer Name</label>
-                <input 
-                  v-model="orderForm.customer_name" 
-                  type="text" 
-                  required
-                  class="mt-1 block w-full border rounded-md shadow-sm p-2"
-                />
-              </div>
-              <div>
-                <label class="block text-sm font-medium text-gray-700">Email</label>
-                <input 
-                  v-model="orderForm.email" 
-                  type="email" 
-                  required
-                  class="mt-1 block w-full border rounded-md shadow-sm p-2"
-                />
-              </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700">Customer Name</label>
+              <input 
+                v-model="orderForm.customer_name" 
+                type="text" 
+                required
+                class="mt-1 block w-full border rounded-md shadow-sm p-2"
+              />
             </div>
             
-            <!-- Product Selection -->
             <div>
-              <label class="block text-sm font-medium text-gray-700">Products</label>
-              <div v-for="(item, index) in orderForm.items" :key="index" class="flex gap-2 mt-2">
-                <select 
-                  v-model="item.product_id"
-                  class="flex-1 border rounded-md shadow-sm p-2"
-                >
-                  <option v-for="product in products" :key="product.id" :value="product.id">
-                    {{ product.name }} - ${{ product.price }}
-                  </option>
-                </select>
-                <input 
-                  v-model="item.quantity"
-                  type="number"
-                  min="1"
-                  class="w-24 border rounded-md shadow-sm p-2"
-                />
-                <button 
-                  type="button"
-                  @click="removeOrderItem(index)"
-                  class="text-red-600 hover:text-red-900"
-                >
-                  Remove
-                </button>
-              </div>
-              <button 
-                type="button"
-                @click="addOrderItem"
-                class="mt-2 text-blue-600 hover:text-blue-900"
-              >
-                Add Product
-              </button>
+              <label class="block text-sm font-medium text-gray-700">Customer Email</label>
+              <input 
+                v-model="orderForm.customer_email" 
+                type="email" 
+                required
+                class="mt-1 block w-full border rounded-md shadow-sm p-2"
+              />
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700">Total Amount</label>
+              <input 
+                v-model="orderForm.total_amount"
+                type="number"
+                step="0.01"
+                min="0.01"
+                required
+                class="mt-1 block w-full border rounded-md shadow-sm p-2"
+              />
             </div>
 
             <div>
@@ -185,6 +160,7 @@
               <textarea 
                 v-model="orderForm.notes"
                 class="mt-1 block w-full border rounded-md shadow-sm p-2"
+                rows="3"
               ></textarea>
             </div>
           </div>
@@ -226,7 +202,7 @@
             </select>
           </div>
           <div>
-            <label class="block text-sm font-medium text-gray-700">Status Note</label>
+            <label class="block text-sm font-medium text-gray-700">Notes</label>
             <textarea 
               v-model="statusNote"
               class="mt-1 block w-full border rounded-md shadow-sm p-2"
@@ -235,7 +211,7 @@
           </div>
           <div class="flex justify-end space-x-3">
             <button 
-              @click="showStatusModal = false"
+              @click="closeStatusModal"
               class="bg-gray-200 text-gray-700 px-4 py-2 rounded hover:bg-gray-300"
             >
               Cancel
@@ -259,11 +235,11 @@ import axios from 'axios'
 
 export default {
   setup() {
+    // State
     const orders = ref([])
-    const products = ref([])
     const searchQuery = ref('')
     const statusFilter = ref('all')
-    const sortBy = ref('date')
+    const sortBy = ref('created_at')
     const dateFilter = ref('')
     const showAddModal = ref(false)
     const showStatusModal = ref(false)
@@ -274,13 +250,13 @@ export default {
 
     const orderForm = ref({
       customer_name: '',
-      email: '',
-      items: [{ product_id: '', quantity: 1 }],
+      customer_email: '',
+      total_amount: '',
       status: 'pending',
       notes: ''
     })
 
-    // Fetch data
+    // Fetch orders
     const fetchOrders = async () => {
       try {
         const response = await axios.get('/api/orders/')
@@ -290,23 +266,15 @@ export default {
       }
     }
 
-    const fetchProducts = async () => {
-      try {
-        const response = await axios.get('/api/products/')
-        products.value = response.data
-      } catch (error) {
-        console.error('Error fetching products:', error)
-      }
-    }
-
-    // Computed properties
     const filteredOrders = computed(() => {
       let filtered = [...orders.value]
 
       if (searchQuery.value) {
+        const query = searchQuery.value.toLowerCase()
         filtered = filtered.filter(order => 
-          order.order_number.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-          order.customer_details.toLowerCase().includes(searchQuery.value.toLowerCase())
+          order.order_number.toLowerCase().includes(query) ||
+          order.customer_name.toLowerCase().includes(query) ||
+          order.customer_email.toLowerCase().includes(query)
         )
       }
 
@@ -315,29 +283,60 @@ export default {
       }
 
       if (dateFilter.value) {
-        const filterDate = new Date(dateFilter.value)
-        filtered = filtered.filter(order => {
-          const orderDate = new Date(order.created_at)
-          return orderDate.toDateString() === filterDate.toDateString()
-        })
+        const filterDate = new Date(dateFilter.value).toISOString().split('T')[0]
+        filtered = filtered.filter(order => 
+          order.created_at.split('T')[0] === filterDate
+        )
       }
 
       // Sorting
       filtered.sort((a, b) => {
-        if (sortBy.value === 'date') {
+        if (sortBy.value === 'created_at') {
           return new Date(b.created_at) - new Date(a.created_at)
-        } else if (sortBy.value === 'order_number') {
-          return a.order_number.localeCompare(b.order_number)
-        } else if (sortBy.value === 'status') {
-          return a.status.localeCompare(b.status)
+        } else if (sortBy.value === 'total_amount') {
+          return b.total_amount - a.total_amount
+        } else {
+          return a[sortBy.value].localeCompare(b[sortBy.value])
         }
-        return 0
       })
 
       return filtered
     })
 
-    // Actions
+    // Methods
+    const formatDate = (dateString) => {
+      return new Date(dateString).toLocaleDateString()
+    }
+
+    const formatAmount = (amount) => {
+      return Number(amount).toFixed(2)
+    }
+
+    const editOrder = (order) => {
+      editingOrder.value = order
+      orderForm.value = { ...order }
+      showAddModal.value = true
+    }
+
+    const updateStatus = (order) => {
+      selectedOrder.value = order
+      newStatus.value = order.status
+      showStatusModal.value = true
+    }
+
+    const submitStatusUpdate = async () => {
+      try {
+        await axios.patch(`/api/orders/${selectedOrder.value.id}/`, {
+          status: newStatus.value,
+          notes: statusNote.value
+        })
+        await fetchOrders()
+        closeStatusModal()
+      } catch (error) {
+        console.error('Error updating status:', error)
+      }
+    }
+
     const saveOrder = async () => {
       try {
         if (editingOrder.value) {
@@ -352,28 +351,6 @@ export default {
       }
     }
 
-    const updateStatus = (order) => {
-      selectedOrder.value = order
-      newStatus.value = order.status
-      showStatusModal.value = true
-    }
-
-    const submitStatusUpdate = async () => {
-      try {
-        await axios.patch(`/api/orders/${selectedOrder.value.id}/`, {
-          status: newStatus.value,
-          status_note: statusNote.value
-        })
-        await fetchOrders()
-        showStatusModal.value = false
-        selectedOrder.value = null
-        newStatus.value = ''
-        statusNote.value = ''
-      } catch (error) {
-        console.error('Error updating status:', error)
-      }
-    }
-
     const deleteOrder = async (id) => {
       if (confirm('Are you sure you want to delete this order?')) {
         try {
@@ -385,44 +362,29 @@ export default {
       }
     }
 
-    const viewDetails = (order) => {
-      // Implement order details view
-      console.log('View order details:', order)
-    }
-
-    const addOrderItem = () => {
-      orderForm.value.items.push({ product_id: '', quantity: 1 })
-    }
-
-    const removeOrderItem = (index) => {
-      orderForm.value.items.splice(index, 1)
-    }
-
     const closeModal = () => {
       showAddModal.value = false
       editingOrder.value = null
       orderForm.value = {
         customer_name: '',
-        email: '',
-        items: [{ product_id: '', quantity: 1 }],
+        customer_email: '',
+        total_amount: '',
         status: 'pending',
         notes: ''
       }
     }
 
-    const formatDate = (dateString) => {
-      return new Date(dateString).toLocaleDateString()
+    const closeStatusModal = () => {
+      showStatusModal.value = false
+      selectedOrder.value = null
+      newStatus.value = ''
+      statusNote.value = ''
     }
 
-    // Initialize data on component mount
-    onMounted(() => {
-      fetchOrders()
-      fetchProducts()
-    })
+    onMounted(fetchOrders)
 
     return {
       orders,
-      products,
       searchQuery,
       statusFilter,
       sortBy,
@@ -434,15 +396,15 @@ export default {
       newStatus,
       statusNote,
       filteredOrders,
-      saveOrder,
-      updateStatus,
-      deleteOrder,
-      viewDetails,
-      closeModal,
       formatDate,
-      addOrderItem,
-      removeOrderItem,
-      submitStatusUpdate
+      formatAmount,
+      editOrder,
+      updateStatus,
+      submitStatusUpdate,
+      saveOrder,
+      deleteOrder,
+      closeModal,
+      closeStatusModal
     }
   }
 }
