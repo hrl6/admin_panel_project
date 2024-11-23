@@ -56,7 +56,7 @@
         <tbody class="bg-white divide-y divide-gray-200">
           <tr v-for="product in filteredProducts" :key="product.id">
             <td class="px-6 py-4 whitespace-nowrap">{{ product.name }}</td>
-            <td class="px-6 py-4 whitespace-nowrap">RM{{ product.price }}</td>
+            <td class="px-6 py-4 whitespace-nowrap">${{ product.price }}</td>
             <td class="px-6 py-4 whitespace-nowrap">{{ product.stock }}</td>
             <td class="px-6 py-4 whitespace-nowrap">
               <span 
@@ -152,121 +152,139 @@
   </div>
 </template>
 
-<script setup>
+<script>
 import { ref, computed, onMounted } from 'vue'
 import axios from 'axios'
 
-// State
-const products = ref([])
-const searchQuery = ref('')
-const stockFilter = ref('all')
-const sortBy = ref('name')
-const showAddModal = ref(false)
-const editingProduct = ref(null)
-const productForm = ref({
-  name: '',
-  description: '',
-  price: 0,
-  stock: 0
-})
+export default {
+  setup() {
+    const products = ref([])
+    const searchQuery = ref('')
+    const stockFilter = ref('all')
+    const sortBy = ref('name')
+    const showAddModal = ref(false)
+    const editingProduct = ref(null)
+    const productForm = ref({
+      name: '',
+      description: '',
+      price: 0,
+      stock: 0
+    })
 
-// Fetch products from API
-const fetchProducts = async () => {
-  try {
-    const response = await axios.get('/api/products/')
-    products.value = response.data
-  } catch (error) {
-    console.error('Error fetching products:', error)
-  }
-}
-
-// Computed property for filtered and sorted products
-const filteredProducts = computed(() => {
-  let filtered = [...products.value]
-
-  // Apply search filter
-  if (searchQuery.value) {
-    filtered = filtered.filter(product => 
-      product.name.toLowerCase().includes(searchQuery.value.toLowerCase())
-    )
-  }
-
-  // Apply stock filter
-  switch (stockFilter.value) {
-    case 'in':
-      filtered = filtered.filter(product => product.stock > 10)
-      break
-    case 'low':
-      filtered = filtered.filter(product => product.stock <= 10 && product.stock > 0)
-      break
-    case 'out':
-      filtered = filtered.filter(product => product.stock === 0)
-      break
-  }
-
-  // Apply sorting
-  filtered.sort((a, b) => {
-    if (sortBy.value === 'price') {
-      return b.price - a.price
-    } else if (sortBy.value === 'stock') {
-      return b.stock - a.stock
-    } else {
-      return b.name.localeCompare(a.name)
+    // Fetch products from API
+    const fetchProducts = async () => {
+      try {
+        const response = await axios.get('/api/products/')
+        products.value = response.data
+      } catch (error) {
+        console.error('Error fetching products:', error)
+      }
     }
-  })
 
-  return filtered
-})
+    // Filter and sort products
+    const filteredProducts = computed(() => {
+      let filtered = [...products.value]
 
-// CRUD operations
-const saveProduct = async () => {
-  try {
-    if (editingProduct.value) {
-      await axios.put(`/api/products/${editingProduct.value.id}/`, productForm.value)
-    } else {
-      await axios.post('/api/products/', productForm.value)
+      // Apply search filter
+      if (searchQuery.value) {
+        filtered = filtered.filter(product => 
+          product.name.toLowerCase().includes(searchQuery.value.toLowerCase())
+        )
+      }
+
+      // Apply stock filter
+      switch (stockFilter.value) {
+        case 'in':
+          filtered = filtered.filter(product => product.stock > 10)
+          break
+        case 'low':
+          filtered = filtered.filter(product => product.stock <= 10 && product.stock > 0)
+          break
+        case 'out':
+          filtered = filtered.filter(product => product.stock === 0)
+          break
+      }
+
+      // Apply sorting
+      filtered.sort((a, b) => {
+        if (sortBy.value === 'price') {
+          return a.price - b.price
+        } else if (sortBy.value === 'stock') {
+          return a.stock - b.stock
+        } else {
+          return a.name.localeCompare(b.name)
+        }
+      })
+
+      return filtered
+    })
+
+    // CRUD operations
+    const saveProduct = async () => {
+      try {
+        if (editingProduct.value) {
+          await axios.put(`/api/products/${editingProduct.value.id}/`, productForm.value)
+        } else {
+          await axios.post('/api/products/', productForm.value)
+        }
+        await fetchProducts()
+        closeModal()
+      } catch (error) {
+        console.error('Error saving product:', error)
+      }
     }
-    await fetchProducts()
-    closeModal()
-  } catch (error) {
-    console.error('Error saving product:', error)
-  }
-}
 
-const editProduct = (product) => {
-  editingProduct.value = product
-  productForm.value = { ...product }
-  showAddModal.value = true
-}
+    const editProduct = (product) => {
+      editingProduct.value = product
+      productForm.value = { ...product }
+      showAddModal.value = true
+    }
 
-const deleteProduct = async (id) => {
-  if (confirm('Are you sure you want to delete this product?')) {
-    try {
-      await axios.delete(`/api/products/${id}/`)
-      await fetchProducts()
-    } catch (error) {
-      console.error('Error deleting product:', error)
+    const deleteProduct = async (id) => {
+      if (confirm('Are you sure you want to delete this product?')) {
+        try {
+          await axios.delete(`/api/products/${id}/`)
+          await fetchProducts()
+        } catch (error) {
+          console.error('Error deleting product:', error)
+        }
+      }
+    }
+
+    const closeModal = () => {
+      showAddModal.value = false
+      editingProduct.value = null
+      productForm.value = {
+        name: '',
+        description: '',
+        price: 0,
+        stock: 0
+      }
+    }
+
+    const getStockStatus = (stock) => {
+      if (stock === 0) return 'Out of Stock'
+      if (stock <= 10) return 'Low Stock'
+      return 'In Stock'
+    }
+
+    onMounted(fetchProducts)
+
+    return {
+      products,
+      searchQuery,
+      stockFilter,
+      sortBy,
+      showAddModal,
+      editingProduct,
+      productForm,
+      filteredProducts,
+      saveProduct,
+      editProduct,
+      deleteProduct,
+      closeModal,
+      getStockStatus
     }
   }
 }
-
-const closeModal = () => {
-  showAddModal.value = false
-  editingProduct.value = null
-  productForm.value = {
-    name: '',
-    description: '',
-    price: 0,
-    stock: 0
-  }
-}
-
-const getStockStatus = (stock) => {
-  if (stock === 0) return 'Out of Stock'
-  if (stock <= 10) return 'Low Stock'
-  return 'In Stock'
-}
-
-// Lifecycle hook
-onMounted(fetchProducts)
 </script>

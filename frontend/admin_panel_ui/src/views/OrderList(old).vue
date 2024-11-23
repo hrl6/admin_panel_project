@@ -65,7 +65,7 @@
               <div class="text-sm font-medium text-gray-900">{{ order.customer_name }}</div>
               <div class="text-sm text-gray-500">{{ order.customer_email }}</div>
             </td>
-            <td class="px-6 py-4 whitespace-nowrap">RM{{ formatAmount(order.total_amount) }}</td>
+            <td class="px-6 py-4 whitespace-nowrap">${{ formatAmount(order.total_amount) }}</td>
             <td class="px-6 py-4 whitespace-nowrap">
               <span 
                 :class="{
@@ -79,7 +79,7 @@
                 {{ order.status }}
               </span>
             </td>
-            <td class="px-6 py-4 whitespace-nowrap text-right space-x-4">
+            <td class="px-6 py-4 whitespace-nowrap text-right space-x-2">
               <button 
                 @click="editOrder(order)"
                 class="text-indigo-600 hover:text-indigo-900"
@@ -229,172 +229,183 @@
   </div>
 </template>
 
-<script setup>
+<script>
 import { ref, computed, onMounted } from 'vue'
 import axios from 'axios'
 
-// State
-const orders = ref([])
-const searchQuery = ref('')
-const statusFilter = ref('all')
-const sortBy = ref('created_at')
-const dateFilter = ref('')
-const showAddModal = ref(false)
-const showStatusModal = ref(false)
-const editingOrder = ref(null)
-const selectedOrder = ref(null)
-const newStatus = ref('')
-const statusNote = ref('')
+export default {
+  setup() {
+    // State
+    const orders = ref([])
+    const searchQuery = ref('')
+    const statusFilter = ref('all')
+    const sortBy = ref('created_at')
+    const dateFilter = ref('')
+    const showAddModal = ref(false)
+    const showStatusModal = ref(false)
+    const editingOrder = ref(null)
+    const selectedOrder = ref(null)
+    const newStatus = ref('')
+    const statusNote = ref('')
 
-const orderForm = ref({
-  customer_name: '',
-  customer_email: '',
-  total_amount: '',
-  status: 'pending',
-  notes: ''
-})
-
-// Computed
-const filteredOrders = computed(() => {
-  let filtered = [...orders.value]
-
-  if (searchQuery.value) {
-    const query = searchQuery.value.toLowerCase()
-    filtered = filtered.filter(order => 
-      order.order_number.toLowerCase().includes(query) ||
-      order.customer_name.toLowerCase().includes(query) ||
-      order.customer_email.toLowerCase().includes(query)
-    )
-  }
-
-  if (statusFilter.value !== 'all') {
-    filtered = filtered.filter(order => order.status === statusFilter.value)
-  }
-
-  if (dateFilter.value) {
-    const filterDate = new Date(dateFilter.value).toISOString().split('T')[0]
-    filtered = filtered.filter(order => 
-      order.created_at.split('T')[0] === filterDate
-    )
-  }
-
-  // Sorting
-  filtered.sort((a, b) => {
-    switch (sortBy.value) {
-      case 'created_at':
-        return new Date(b.created_at) - new Date(a.created_at)
-      
-      case 'order_number':
-        const aNum = parseInt(a.order_number.replace(/[^0-9]/g, ''))
-        const bNum = parseInt(b.order_number.replace(/[^0-9]/g, ''))
-        return aNum - bNum
-      
-      case 'total_amount':
-        const aAmount = typeof a.total_amount === 'string' ? 
-          parseFloat(a.total_amount.replace(/[^0-9.-]+/g, '')) : 
-          a.total_amount
-        const bAmount = typeof b.total_amount === 'string' ? 
-          parseFloat(b.total_amount.replace(/[^0-9.-]+/g, '')) : 
-          b.total_amount
-        return bAmount - aAmount
-      
-      default:
-        const aVal = a[sortBy.value]?.toString().toLowerCase() ?? ''
-        const bVal = b[sortBy.value]?.toString().toLowerCase() ?? ''
-        return aVal.localeCompare(bVal)
-    }
-  })
-
-  return filtered
-})
-
-// Methods
-const fetchOrders = async () => {
-  try {
-    const response = await axios.get('/api/orders/')
-    orders.value = response.data
-  } catch (error) {
-    console.error('Error fetching orders:', error)
-  }
-}
-
-const formatDate = (dateString) => {
-  return new Date(dateString).toLocaleDateString()
-}
-
-const formatAmount = (amount) => {
-  return Number(amount).toFixed(2)
-}
-
-const editOrder = (order) => {
-  editingOrder.value = order
-  orderForm.value = { ...order }
-  showAddModal.value = true
-}
-
-const updateStatus = (order) => {
-  selectedOrder.value = order
-  newStatus.value = order.status
-  showStatusModal.value = true
-}
-
-const submitStatusUpdate = async () => {
-  try {
-    await axios.patch(`/api/orders/${selectedOrder.value.id}/`, {
-      status: newStatus.value,
-      notes: statusNote.value
+    const orderForm = ref({
+      customer_name: '',
+      customer_email: '',
+      total_amount: '',
+      status: 'pending',
+      notes: ''
     })
-    await fetchOrders()
-    closeStatusModal()
-  } catch (error) {
-    console.error('Error updating status:', error)
-  }
-}
 
-const saveOrder = async () => {
-  try {
-    if (editingOrder.value) {
-      await axios.put(`/api/orders/${editingOrder.value.id}/`, orderForm.value)
-    } else {
-      await axios.post('/api/orders/', orderForm.value)
+    // Fetch orders
+    const fetchOrders = async () => {
+      try {
+        const response = await axios.get('/api/orders/')
+        orders.value = response.data
+      } catch (error) {
+        console.error('Error fetching orders:', error)
+      }
     }
-    await fetchOrders()
-    closeModal()
-  } catch (error) {
-    console.error('Error saving order:', error)
-  }
-}
 
-const deleteOrder = async (id) => {
-  if (confirm('Are you sure you want to delete this order?')) {
-    try {
-      await axios.delete(`/api/orders/${id}/`)
-      await fetchOrders()
-    } catch (error) {
-      console.error('Error deleting order:', error)
+    const filteredOrders = computed(() => {
+      let filtered = [...orders.value]
+
+      if (searchQuery.value) {
+        const query = searchQuery.value.toLowerCase()
+        filtered = filtered.filter(order => 
+          order.order_number.toLowerCase().includes(query) ||
+          order.customer_name.toLowerCase().includes(query) ||
+          order.customer_email.toLowerCase().includes(query)
+        )
+      }
+
+      if (statusFilter.value !== 'all') {
+        filtered = filtered.filter(order => order.status === statusFilter.value)
+      }
+
+      if (dateFilter.value) {
+        const filterDate = new Date(dateFilter.value).toISOString().split('T')[0]
+        filtered = filtered.filter(order => 
+          order.created_at.split('T')[0] === filterDate
+        )
+      }
+
+      // Sorting
+      filtered.sort((a, b) => {
+        if (sortBy.value === 'created_at') {
+          return new Date(b.created_at) - new Date(a.created_at)
+        } else if (sortBy.value === 'total_amount') {
+          return b.total_amount - a.total_amount
+        } else {
+          return a[sortBy.value].localeCompare(b[sortBy.value])
+        }
+      })
+
+      return filtered
+    })
+
+    // Methods
+    const formatDate = (dateString) => {
+      return new Date(dateString).toLocaleDateString()
+    }
+
+    const formatAmount = (amount) => {
+      return Number(amount).toFixed(2)
+    }
+
+    const editOrder = (order) => {
+      editingOrder.value = order
+      orderForm.value = { ...order }
+      showAddModal.value = true
+    }
+
+    const updateStatus = (order) => {
+      selectedOrder.value = order
+      newStatus.value = order.status
+      showStatusModal.value = true
+    }
+
+    const submitStatusUpdate = async () => {
+      try {
+        await axios.patch(`/api/orders/${selectedOrder.value.id}/`, {
+          status: newStatus.value,
+          notes: statusNote.value
+        })
+        await fetchOrders()
+        closeStatusModal()
+      } catch (error) {
+        console.error('Error updating status:', error)
+      }
+    }
+
+    const saveOrder = async () => {
+      try {
+        if (editingOrder.value) {
+          await axios.put(`/api/orders/${editingOrder.value.id}/`, orderForm.value)
+        } else {
+          await axios.post('/api/orders/', orderForm.value)
+        }
+        await fetchOrders()
+        closeModal()
+      } catch (error) {
+        console.error('Error saving order:', error)
+      }
+    }
+
+    const deleteOrder = async (id) => {
+      if (confirm('Are you sure you want to delete this order?')) {
+        try {
+          await axios.delete(`/api/orders/${id}/`)
+          await fetchOrders()
+        } catch (error) {
+          console.error('Error deleting order:', error)
+        }
+      }
+    }
+
+    const closeModal = () => {
+      showAddModal.value = false
+      editingOrder.value = null
+      orderForm.value = {
+        customer_name: '',
+        customer_email: '',
+        total_amount: '',
+        status: 'pending',
+        notes: ''
+      }
+    }
+
+    const closeStatusModal = () => {
+      showStatusModal.value = false
+      selectedOrder.value = null
+      newStatus.value = ''
+      statusNote.value = ''
+    }
+
+    onMounted(fetchOrders)
+
+    return {
+      orders,
+      searchQuery,
+      statusFilter,
+      sortBy,
+      dateFilter,
+      showAddModal,
+      showStatusModal,
+      editingOrder,
+      orderForm,
+      newStatus,
+      statusNote,
+      filteredOrders,
+      formatDate,
+      formatAmount,
+      editOrder,
+      updateStatus,
+      submitStatusUpdate,
+      saveOrder,
+      deleteOrder,
+      closeModal,
+      closeStatusModal
     }
   }
 }
-
-const closeModal = () => {
-  showAddModal.value = false
-  editingOrder.value = null
-  orderForm.value = {
-    customer_name: '',
-    customer_email: '',
-    total_amount: '',
-    status: 'pending',
-    notes: ''
-  }
-}
-
-const closeStatusModal = () => {
-  showStatusModal.value = false
-  selectedOrder.value = null
-  newStatus.value = ''
-  statusNote.value = ''
-}
-
-// Lifecycle hooks
-onMounted(fetchOrders)
 </script>
