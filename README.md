@@ -20,7 +20,7 @@ python manage.py runserver
 
 ### Frontend Setup
 ```bash
-cd frontend
+cd frontend/admin_panel_ui
 npm install
 npm run dev
 ```
