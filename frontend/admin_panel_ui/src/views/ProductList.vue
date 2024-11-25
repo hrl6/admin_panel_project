@@ -182,16 +182,21 @@ const response = ref(null)
 const error = ref(null)
 const testBackend = async () => {
   try {
-    const response = await fetch('YOUR_RAILWAY_URL/api/test/', {
+    response.value = null
+    error.value = null
+    
+    const resp = await fetch('https://adminpanelproject-production.up.railway.app/api/', {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
       },
     });
-    const data = await response.json();
+    const data = await resp.json();
+    response.value = data
     console.log('Response:', data);
-  } catch (error) {
-    console.error('Error:', error);
+  } catch (err) {
+    error.value = err.message
+    console.error('Error:', err);
   }
 }
 // Fetch products from API
