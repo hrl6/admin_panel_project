@@ -9,6 +9,12 @@
       >
         Add Product
       </button>
+      <button 
+        @click="testBackend"
+        class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+      >
+        Test testBackend
+      </button>
     </div>
 
     <!-- Search and Filter Section -->
@@ -170,6 +176,20 @@ const productForm = ref({
   stock: 0
 })
 
+const testBackend = async () => {
+  try {
+    const response = await fetch('YOUR_RAILWAY_URL/api/test/', {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    const data = await response.json();
+    console.log('Response:', data);
+  } catch (error) {
+    console.error('Error:', error);
+  }
+}
 // Fetch products from API
 const fetchProducts = async () => {
   try {
