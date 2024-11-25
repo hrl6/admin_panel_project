@@ -1,6 +1,23 @@
 <script setup>
 import { RouterLink, RouterView } from 'vue-router'
 // import HelloWorld from './components/HelloWorld.vue'
+const testBackend = async () => {
+  try {
+    const response = await fetch('YOUR_RAILWAY_URL/api/test/', {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    const data = await response.json();
+    console.log('Response:', data);
+  } catch (error) {
+    console.error('Error:', error);
+  }
+}
+
+console.log(testBackend)
+console.log('API URL:', import.meta.env.VITE_API_URL)
 </script>
 
 <template>
