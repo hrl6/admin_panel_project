@@ -16,7 +16,9 @@
         Test testBackend
       </button>
     </div>
-
+    
+    <div v-if="response">Response: {{ response }}</div>
+    <div v-if="error">Error: {{ error }}</div>
     <!-- Search and Filter Section -->
     <div class="mb-6 flex gap-4">
       <input 
