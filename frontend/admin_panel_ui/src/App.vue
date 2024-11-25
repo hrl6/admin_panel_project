@@ -1,6 +1,9 @@
 <script setup>
 import { RouterLink, RouterView } from 'vue-router'
 // import HelloWorld from './components/HelloWorld.vue'
+console.log('API URL:', import.meta.env.VITE_API_URL)
+console.log('API Base:', import.meta.env.VITE_API_BASE)
+console.log('App Name:', import.meta.env.VITE_APP_NAME)
 </script>
 
 <template>

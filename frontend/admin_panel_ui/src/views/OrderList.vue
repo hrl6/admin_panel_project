@@ -299,6 +299,12 @@ const filteredOrders = computed(() => {
         return bAmount - aAmount
       
       default:
+        // array.sort((a, b) => { 
+        //   const aValue = a.value || ''; 
+        //   const bValue = b.value || ''; 
+        //   return aValue.localeCompare(bValue); 
+        // });
+
         const aVal = a[sortBy.value]?.toString().toLowerCase() ?? ''
         const bVal = b[sortBy.value]?.toString().toLowerCase() ?? ''
         return aVal.localeCompare(bVal)

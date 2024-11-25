@@ -13,6 +13,7 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
+        // target: 'https://adminpanelproject-production.up.railway.app/',
         target: 'http://localhost:8000',
         changeOrigin: true
       }
