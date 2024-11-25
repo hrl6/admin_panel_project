@@ -29,7 +29,6 @@ DEBUG = True
 
 ALLOWED_HOSTS = ["*"]
 
-
 # Application definition
 
 INSTALLED_APPS = [
@@ -61,7 +60,8 @@ MIDDLEWARE = [
 CORS_ALLOWED_ORIGINS = [
     "http://localhost.5173",
     'https://adminpanelproject-production.up.railway.app',
-    'http://adminpanelproject-production.up.railway.app'
+    'http://adminpanelproject-production.up.railway.app',
+    'https://adminpanelproject-phi.vercel.app/'
 ]
 
 CSRF_TRUSTED_ORIGINS = [
