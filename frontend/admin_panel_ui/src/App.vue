@@ -3,7 +3,7 @@ import { RouterLink, RouterView } from 'vue-router'
 // import HelloWorld from './components/HelloWorld.vue'
 console.log('API URL:', import.meta.env.VITE_API_URL)
 console.log('App Name:', import.meta.env.VITE_APP_NAME)
-console.log('API Key:', import.meta.env.VITE_API_KEY)
+console.log('API Key:', import.meta.env.VITE_API_SECRET)
 </script>
 
 <template>
