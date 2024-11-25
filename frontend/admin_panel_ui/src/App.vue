@@ -16,7 +16,6 @@ const testBackend = async () => {
   }
 }
 
-console.log(testBackend)
 console.log('API URL:', import.meta.env.VITE_API_URL)
 </script>
 
@@ -29,6 +28,7 @@ console.log('API URL:', import.meta.env.VITE_API_URL)
             <router-link 
               to="/" 
               class="flex-shrink-0 flex items-center text-lg font-semibold"
+              @click="testBackend"
             >
               Admin Dashboard
             </router-link>

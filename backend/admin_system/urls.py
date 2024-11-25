@@ -18,9 +18,6 @@ from django.contrib import admin
 from django.urls import path, include
 from rest_framework import routers
 from dashboard.views import ProductViewSet, OrderViewSet
-import logging
-
-logger = logging.getLogger(__name__)
 
 router = routers.DefaultRouter()
 router.register(r'products', ProductViewSet)
@@ -30,8 +27,3 @@ urlpatterns = [
     path('api/', include(router.urls)),
     path('admin/', admin.site.urls),
 ]
-
-@api_view(['GET'])
-def test_endpoint(request):
-    logger.info("Request received")  # Add this to see if requests reach backend
-    return Response({"message": "Backend reached"})
