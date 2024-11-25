@@ -178,6 +178,8 @@ const productForm = ref({
   stock: 0
 })
 
+const response = ref(null)
+const error = ref(null)
 const testBackend = async () => {
   try {
     const response = await fetch('YOUR_RAILWAY_URL/api/test/', {
