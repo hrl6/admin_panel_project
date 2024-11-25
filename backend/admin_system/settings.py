@@ -61,7 +61,7 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost.5173",
     'https://adminpanelproject-production.up.railway.app',
     'http://adminpanelproject-production.up.railway.app',
-    'https://admin-panel-project-nine.vercel.app/'
+    'https://admin-panel-project-nine.vercel.app'
 ]
 
 CSRF_TRUSTED_ORIGINS = [
