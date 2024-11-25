@@ -163,6 +163,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import axios from 'axios'
+import api from '@/api/index'
 
 // State
 const products = ref([])
@@ -181,24 +182,19 @@ const productForm = ref({
 const response = ref(null)
 const error = ref(null)
 const testBackend = async () => {
-  try {
-    response.value = null
-    error.value = null
-    
-    const resp = await fetch('https://adminpanelproject-production.up.railway.app/api/', {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
-    const data = await resp.json();
-    response.value = data
-    console.log('Response:', data);
-  } catch (err) {
-    error.value = err.message
-    console.error('Error:', err);
-  }
+    try {
+        // Add a simple query parameter to bypass cache
+        const response = await api.get('/');
+        console.log('Response:', response.data);
+    } catch (error) {
+        console.error('Error details:', {
+            message: error.message,
+            response: error.response,
+            request: error.request
+        });
+    }
 }
+
 // Fetch products from API
 const fetchProducts = async () => {
   try {

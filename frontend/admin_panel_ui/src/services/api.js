@@ -1,12 +1,20 @@
-import { config } from '@/config'
 import axios from 'axios'
 
-const apiClient = axios.create({
-    baseURL: config.apiUrl,
+const api = axios.create({
+    baseURL: 'https://adminpanelproject-production.up.railway.app/api',
+    withCredentials: true,
     headers: {
         'Content-Type': 'application/json',
-        'X-Requested-With': 'XMLHttpRequest',
-    },
-})
+        'Accept': 'application/json',
+    }
+});
 
-export default apiClient
+api.interceptors.response.use(
+    response => response,
+    error => {
+        console.error('API Error:', error);
+        return Promise.reject(error);
+    }
+);
+
+export default api;

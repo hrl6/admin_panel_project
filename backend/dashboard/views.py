@@ -3,6 +3,19 @@ from rest_framework import viewsets
 from .models import Product, Order
 from .serializers import ProductSerializer, OrderSerializer
 
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from django.views.decorators.csrf import csrf_exempt
+
+@csrf_exempt
+@api_view(['GET'])
+def your_api_view(request):
+    response = Response({'message': 'Success'})
+    response["Access-Control-Allow-Origin"] = "*"
+    response["Access-Control-Allow-Methods"] = "GET, OPTIONS"
+    response["Access-Control-Allow-Headers"] = "Content-Type, Authorization"
+    return response
+
 # Create your views here.
 class ProductViewSet(viewsets.ModelViewSet):
   queryset = Product.objects.all()
