@@ -60,7 +60,8 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
 #     'https://adminpanelproject-production.up.railway.app',
 #     'http://adminpanelproject-production.up.railway.app',
-    'https://admin-panel-project-nine.vercel.app'
+    'https://admin-panel-project-nine.vercel.app',
+    'https://admin-panel-project-nine.vercel.app/api',
 ]
 
 # CORS_ALLOW_ALL_ORIGINS = True
@@ -97,9 +98,9 @@ CSRF_TRUSTED_ORIGINS = [
     'https://admin-panel-project-nine.vercel.app',
 ]
 
-# SESSION_COOKIE_SAMESITE = 'Lax'
-# SESSION_COOKIE_SECURE = True
-# CSRF_COOKIE_SECURE = True
+SECURE_SSL_REDIRECT = True
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
 
 ROOT_URLCONF = 'admin_system.urls'
 
