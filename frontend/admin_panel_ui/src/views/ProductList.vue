@@ -9,6 +9,12 @@
       >
         Add Product
       </button>
+      <button 
+        @click="testBackend"
+        class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+      >
+        Test testBackend
+      </button>
     </div>
     
     <!-- Search and Filter Section -->
@@ -171,24 +177,24 @@ const productForm = ref({
   stock: 0
 })
 
-// const testBackend = async () => {
-//     try {
-//         console.log('Testing root endpoint...');
-//         const rootResponse = await api.get('/');
-//         console.log('Root response:', rootResponse?.data);
+const testBackend = async () => {
+    try {
+        console.log('Testing root endpoint...');
+        const rootResponse = await api.get('/');
+        console.log('Root response:', rootResponse?.data);
 
-//         console.log('Testing products endpoint...');
-//         const productsResponse = await api.get('/products/');
-//         console.log('Products response:', productsResponse?.data);
-//     } catch (error) {
-//         console.error('API test failed:', {
-//             endpoint: error?.config?.url,
-//             status: error?.response?.status,
-//             message: error?.message,
-//             data: error?.response?.data
-//         });
-//     }
-// }
+        console.log('Testing products endpoint...');
+        const productsResponse = await api.get('/products/');
+        console.log('Products response:', productsResponse?.data);
+    } catch (error) {
+        console.error('API test failed:', {
+            endpoint: error?.config?.url,
+            status: error?.response?.status,
+            message: error?.message,
+            data: error?.response?.data
+        });
+    }
+}
 
 // Fetch products from API
 const fetchProducts = async () => {
