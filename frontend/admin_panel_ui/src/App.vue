@@ -1,9 +1,5 @@
 <script setup>
 import { RouterLink, RouterView } from 'vue-router'
-// import HelloWorld from './components/HelloWorld.vue'
-console.log('Product Api:', `${import.meta.env.VITE_API_URL}/api/products`)
-console.log('Product Api:', `${import.meta.env.VITE_API_URL}/api/orders`)
-console.log('API URL:', import.meta.env.VITE_API_URL)
 </script>
 
 <template>

@@ -1,5 +1,4 @@
 import { fileURLToPath, URL } from 'node:url'
-
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import vueDevTools from 'vite-plugin-vue-devtools'
@@ -13,8 +12,9 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        // target: 'https://adminpanelproject-production.up.railway.app/',
-        target: 'http://localhost:8000',
+        target: process.env.NODE_ENV === 'production' 
+          ? 'https://adminpanelproject-production.up.railway.app'
+          : 'http://localhost:8000',
         changeOrigin: true
       }
     }

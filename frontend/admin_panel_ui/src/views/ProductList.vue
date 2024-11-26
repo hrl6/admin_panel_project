@@ -9,16 +9,8 @@
       >
         Add Product
       </button>
-      <button 
-        @click="testBackend"
-        class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-      >
-        Test testBackend
-      </button>
     </div>
     
-    <div v-if="response">Response: {{ response }}</div>
-    <div v-if="error">Error: {{ error }}</div>
     <!-- Search and Filter Section -->
     <div class="mb-6 flex gap-4">
       <input 
@@ -179,21 +171,24 @@ const productForm = ref({
   stock: 0
 })
 
-const response = ref(null)
-const error = ref(null)
-const testBackend = async () => {
-    try {
-        // Add a simple query parameter to bypass cache
-        const response = await api.get('/');
-        console.log('Response:', response.data);
-    } catch (error) {
-        console.error('Error details:', {
-            message: error.message,
-            response: error.response,
-            request: error.request
-        });
-    }
-}
+// const testBackend = async () => {
+//     try {
+//         console.log('Testing root endpoint...');
+//         const rootResponse = await api.get('/');
+//         console.log('Root response:', rootResponse?.data);
+
+//         console.log('Testing products endpoint...');
+//         const productsResponse = await api.get('/products/');
+//         console.log('Products response:', productsResponse?.data);
+//     } catch (error) {
+//         console.error('API test failed:', {
+//             endpoint: error?.config?.url,
+//             status: error?.response?.status,
+//             message: error?.message,
+//             data: error?.response?.data
+//         });
+//     }
+// }
 
 // Fetch products from API
 const fetchProducts = async () => {

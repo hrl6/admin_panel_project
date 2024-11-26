@@ -63,35 +63,43 @@ MIDDLEWARE = [
 #     'https://admin-panel-project-nine.vercel.app'
 # ]
 
-CORS_ALLOW_ALL_ORIGINS = True
-CORS_ALLOW_CREDENTIALS = True
+# CORS_ALLOW_ALL_ORIGINS = True
+# CORS_ALLOW_CREDENTIALS = True
+# CORS_EXPOSE_HEADERS = [
+#     'Access-Control-Allow-Origin',
+#     'Access-Control-Allow-Credentials'
+# ]
 
-CORS_ALLOW_METHODS = [
-    'DELETE',
-    'GET',
-    'OPTIONS',
-    'PATCH',
-    'POST',
-    'PUT',
-]
+# CORS_ALLOW_METHODS = [
+#     'DELETE',
+#     'GET',
+#     'OPTIONS',
+#     'PATCH',
+#     'POST',
+#     'PUT',
+# ]
 
-CORS_ALLOW_HEADERS = [
-    'accept',
-    'accept-encoding',
-    'authorization',
-    'content-type',
-    'dnt',
-    'origin',
-    'user-agent',
-    'x-csrftoken',
-    'x-requested-with',
-]
+# CORS_ALLOW_HEADERS = [
+#     'accept',
+#     'accept-encoding',
+#     'authorization',
+#     'content-type',
+#     'dnt',
+#     'origin',
+#     'user-agent',
+#     'x-csrftoken',
+#     'x-requested-with',
+# ]
 
-CSRF_TRUSTED_ORIGINS = [
-    'https://adminpanelproject-production.up.railway.app',
-    'http://adminpanelproject-production.up.railway.app',
-    'https://admin-panel-project-nine.vercel.app',
-]
+# CSRF_TRUSTED_ORIGINS = [
+#     'https://adminpanelproject-production.up.railway.app',
+#     'http://adminpanelproject-production.up.railway.app',
+#     'https://admin-panel-project-nine.vercel.app',
+# ]
+
+# SESSION_COOKIE_SAMESITE = 'Lax'
+# SESSION_COOKIE_SECURE = True
+# CSRF_COOKIE_SECURE = True
 
 ROOT_URLCONF = 'admin_system.urls'
 
