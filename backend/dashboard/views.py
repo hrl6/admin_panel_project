@@ -14,7 +14,12 @@ def your_api_view(request):
     response["Access-Control-Allow-Origin"] = "*"
     response["Access-Control-Allow-Methods"] = "GET, OPTIONS"
     response["Access-Control-Allow-Headers"] = "Content-Type, Authorization"
-    return response
+    if request.method == 'OPTIONS':
+        return Response(status=200)
+    return Response({
+        'products': f"{request.scheme}://{request.get_host()}/api/products/",
+        'orders': f"{request.scheme}://{request.get_host()}/api/orders/"
+    })
 
 # Create your views here.
 class ProductViewSet(viewsets.ModelViewSet):
