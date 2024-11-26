@@ -27,11 +27,7 @@ SECRET_KEY = 'django-insecure-up793owdy^=7o2&lu9cc+97@z9^5=t9y9g18+3^dm$wx&%+aw^
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = [
-    'https://adminpanelproject-production.up.railway.app',
-    'https://admin-panel-project-nine.vercel.app',
-    'http://localhost:5173',
-]
+ALLOWED_HOSTS = ['*']
 
 # Application definition
 
@@ -101,7 +97,7 @@ CSRF_TRUSTED_ORIGINS = [
     'https://admin-panel-project-nine.vercel.app',
 ]
 
-SECURE_SSL_REDIRECT = False
+# SECURE_SSL_REDIRECT = False
 
 CSRF_COOKIE_SECURE = True
 SESSION_COOKIE_SECURE = True
