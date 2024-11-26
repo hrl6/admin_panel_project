@@ -15,7 +15,7 @@ export default defineConfig({
         target: process.env.NODE_ENV === 'production' 
           ? 'https://adminpanelproject-production.up.railway.app'
           : 'http://localhost:8000',
-        changeOrigin: true
+        changeOrigin: true,
       }
     }
   },

@@ -10,17 +10,21 @@ from django.views.decorators.csrf import csrf_exempt
 @csrf_exempt
 @api_view(['GET'])
 def your_api_view(request):
-    response = Response({'message': 'Success'})
+    # Force HTTP for localhost
+    scheme = 'http' if request.get_host().startswith('localhost') else request.scheme
+    
+    response = Response({
+        'products': f"{scheme}://{request.get_host()}/api/products/",
+        'orders': f"{scheme}://{request.get_host()}/api/orders/"
+    })
+    
     response["Access-Control-Allow-Origin"] = "*"
     response["Access-Control-Allow-Methods"] = "GET, OPTIONS"
     response["Access-Control-Allow-Headers"] = "Content-Type, Authorization"
+    
+    if request.method == 'OPTIONS':
+        return Response(status=200)
     return response
-    # if request.method == 'OPTIONS':
-    #     return Response(status=200)
-    # return Response({
-    #     'products': f"{request.scheme}://{request.get_host()}/api/products/",
-    #     'orders': f"{request.scheme}://{request.get_host()}/api/orders/"
-    # })
 
 # Create your views here.
 class ProductViewSet(viewsets.ModelViewSet):
