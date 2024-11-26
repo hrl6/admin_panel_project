@@ -61,7 +61,6 @@ CORS_ALLOWED_ORIGINS = [
 #     'https://adminpanelproject-production.up.railway.app',
 #     'http://adminpanelproject-production.up.railway.app',
     'https://admin-panel-project-nine.vercel.app',
-    'https://admin-panel-project-nine.vercel.app/api',
 ]
 
 # CORS_ALLOW_ALL_ORIGINS = True
